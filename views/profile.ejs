@@ -22,9 +22,20 @@
       </div>
     </div>
     <img class="w-full h-[40vh] object-cover"src="/images/<%= post.media%>"alt="">
-    <div class="text-2xl flex gap-x-5 mt-1">
-      <i class="ri-heart-3-line"></i>
-      <i class="ri-chat-3-line"></i>
+    <div class=" flex items-center mt-1">
+      <span class="text-md mr-2">
+        <%= post.likes.length%>
+      </span>
+      <a class="text-2xl" href="/like/<%= post._id %>">
+        <% if(post.likes.includes(user._id)) { %>
+          <i class="text-red-300 ri-heart-3-fill"></i>
+
+        <% } else { %>
+
+          <i class="ri-heart-3-line"></i>
+          <% } %>
+      </a>
+      <!-- <i class="ri-chat-3-line"></i> -->
     </div>
   </div>
 

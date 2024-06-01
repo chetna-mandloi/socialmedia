@@ -74,8 +74,8 @@ router.get("/profile", isLoggedIn, async function (req, res, next) {
   
   try {
     const posts = await post.find().populate("User");
-    console.log(posts,'post');
-    console.log(req.user,'user');
+    // console.log(posts,'post');
+    // console.log(req.user,'user');
 
     res.render("profile", { user: req.user, posts });
   } catch (error) {
@@ -83,6 +83,19 @@ router.get("/profile", isLoggedIn, async function (req, res, next) {
     res.send(error);
   }
 });
+
+
+
+router.get("/timeline", isLoggedIn, async function(req,res,next){
+  try{
+    res.render("timeline",{user: await req.user.populate("posts") });
+  } catch(error) {
+    res.send(error)
+  }
+});
+
+
+
 
 router.get("/update-user/:id", isLoggedIn, function (req, res, next) {
   res.render("userupdate", { user: req.user });
@@ -138,6 +151,26 @@ router.post("/image/:id",isLoggedIn,upload.single("profilepic"),async function (
   }
 );
 
+// like post //
+
+router.get("/like/:postid", isLoggedIn, async function(req,res,next){
+  try{
+    const post = await post.findById(req.params.postid);
+    if(post.likes.includes(req.user._id)) {
+      post.likes = post.likes.filter((uid) => uid != req.user.id);
+
+    } else {
+      post.likes.push(req.user._id)
+    }
+    await post.save();
+    res.redirect("/profile");
+  } catch(error){
+    res.send(error)
+  }
+});
+
+
+
 
 // delete //
 
@@ -150,6 +183,18 @@ router.get("/delete-user/:id", isLoggedIn, async function (req, res, next) {
 
     );
     }
+
+
+    deleteduser.posts.forEach(async (postid) => {
+      const deletepost = await post.findByIdAndDelete(postid);
+      console.log(deletepost);
+      fs.unlinkSync(path.join(__dirname,"..","public","images",deletepost.media)
+    );
+    });
+
+
+
+
 
 
 
@@ -201,7 +246,18 @@ router.post("/post-create/", isLoggedIn, upload.single("media"), async function(
 }
 );
 
+router.get("/delete-post/:id", isLoggedIn, async function(req,res,next){
+  try{
+    const deletepost = await post.findByIdAndDelete(req.params.id);
 
+    fs.unlinkSync(path.join(__dirname,"..","public","images", deletepost.media)
+  );
+  res.redirect("/timeline");
+
+  } catch (error){
+    res.send(error);
+  }
+});
 
 
 
