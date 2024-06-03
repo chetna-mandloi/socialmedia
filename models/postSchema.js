@@ -1,6 +1,6 @@
 const mongoose =  require("mongoose");
 
-const user = require("./userSchema");
+// const user = require("./userSchema");
 
 const postSchema = new mongoose.Schema(
     {
@@ -13,13 +13,13 @@ const postSchema = new mongoose.Schema(
         },
 
         media:{
-            type:String,
+            type: String,
             required:[true,"media is required"],
 
         },
-        User:{ type: mongoose.Schema.Types.ObjectId, ref: "user" },
+        user:{ type: mongoose.Schema.Types.ObjectId, ref: "user" },
 
-        likes:[{type: mongoose.Schema.Types.ObjectId,ref:"User"}],
+        likes:[{type: mongoose.Schema.Types.ObjectId,ref:"user"}],
 
     },
     

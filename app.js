@@ -14,12 +14,12 @@ const passport = require("passport");
 
 const session = require("express-session");
 
-const  User = require("./db/userSchema");
+const  User = require("./models/userSchema");
 
 
 // db connection
 
-const db = require("./db/connect");
+const db = require("./models/connect");
 
 
 

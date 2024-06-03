@@ -33,7 +33,7 @@ const userSchema = new mongoose.Schema(
     },
     password: String,
 
-    post:[{type: mongoose.Schema.Types.ObjectId,ref:"post"}],
+    post:[{type: mongoose.Schema.Types.ObjectId, ref:"post"}],
 
     resetPasswordToken: {
       type: Number,

@@ -8,9 +8,9 @@ const path = require("path");
 
 // in index.js use strategy //
 
-const post = require("../db/postSchema");
+const post = require("../models/postSchema");
 
-const User = require("../db/userSchema");
+const User = require("../models/userSchema");
 
 const passport = require("passport");
 
@@ -18,10 +18,10 @@ const LocalStrategy = require("passport-local");
 
 // nodemailer //
 const sendmail = require("../utils/mail");
-
-const { error, log } = require("console");
+const { log } = require("console");
 
 passport.use(new LocalStrategy(User.authenticate()));
+
 
 
 /* GET home page. */
@@ -71,23 +71,20 @@ router.get("/about", function (req, res, next) {
 // });
 
 router.get("/profile", isLoggedIn, async function (req, res, next) {
-  
   try {
     const posts = await post.find().populate("User");
-    // console.log(posts,'post');
-    // console.log(req.user,'user');
-
-    res.render("profile", { user: req.user, posts });
-  } catch (error) {
-    console.log(error)
+    res.render("profile", { User: req.user, posts });
+} catch (error) {
     res.send(error);
-  }
+}
 });
 
 
 
 router.get("/timeline", isLoggedIn, async function(req,res,next){
   try{
+    // const u = await req.user.populate("posts")
+    // console.log(u);
     res.render("timeline",{user: await req.user.populate("posts") });
   } catch(error) {
     res.send(error)
@@ -98,7 +95,7 @@ router.get("/timeline", isLoggedIn, async function(req,res,next){
 
 
 router.get("/update-user/:id", isLoggedIn, function (req, res, next) {
-  res.render("userupdate", { user: req.user });
+  res.render("userupdate", { user:req.user });
 });
 
 router.get("/reset-password/:id", isLoggedIn, function (req, res, next) {
@@ -111,7 +108,7 @@ router.post("/reset-password/:id", isLoggedIn, async function (req, res, next) {
     req.user.save();
     res.redirect(`/userupdater/${req.user._id}`);
   } catch (error) {
-    req.send(error);
+    res.send(error);
   }
 });
 
@@ -179,7 +176,13 @@ router.get("/delete-user/:id", isLoggedIn, async function (req, res, next) {
     const deleteduser = await User.findByIdAndDelete(req.params.id);
 
     if(deleteduser.profilepic !== "default.jpeg"){
-      fs.unlinkSync(path.join(__dirname,"..","public","images",deleteduser.profilepic)
+      fs.unlinkSync(
+        path.join(
+          __dirname,
+          "..",
+          "public",
+          "images",
+          deleteduser.profilepic)
 
     );
     }
@@ -188,23 +191,11 @@ router.get("/delete-user/:id", isLoggedIn, async function (req, res, next) {
     deleteduser.posts.forEach(async (postid) => {
       const deletepost = await post.findByIdAndDelete(postid);
       console.log(deletepost);
-      fs.unlinkSync(path.join(__dirname,"..","public","images",deletepost.media)
+      fs.unlinkSync(path.join(__dirname,"..","public","images",deletepost.media
+
+      )
     );
     });
-
-
-
-
-
-
-
-    // nodemail //
-
-    if (deleteduser.profilepic !== "default.jpeg") {
-      fs.unlinkSync(
-        path.join(__dirname, "..", "public", "imagse", deleteduser.profilepic)
-      );
-    }
 
     res.redirect("/login");
   } catch (error) {
@@ -212,13 +203,17 @@ router.get("/delete-user/:id", isLoggedIn, async function (req, res, next) {
   }
 });
 
-// post create //
- 
+// nodemail //
+
+    //  if (deleteduser.profilepic !== "default.jpeg") {
+    //   fs.unlinkSync(
+    //     path.join(__dirname, "..", "public", "imagse", deleteduser.profilepic)
+    //   );
+    // }
+
 router.get("/post-create/", isLoggedIn, function(req,res,next){
   res.render("postcreate",{user: req.user});
 });
-
-
 
 router.post("/post-create/", isLoggedIn, upload.single("media"), async function(req,res,next){
   try {
@@ -228,19 +223,19 @@ router.post("/post-create/", isLoggedIn, upload.single("media"), async function(
       user:  req.user._id,
     });
 
-    const user = await User.findOne({
-      _id:req.user._id
-    })
+    // const user = await User.findOne({
+    //   _id:req.user._id
+    // })
     
-    user.post.push(newpost._id);
+    req.user.posts.push(newpost._id);
 
     await newpost.save();
-    await user.save()
+    await req.user.save()
 
     res.redirect("/profile");
 
   } catch (error) {
-    console.log(error);
+    // console.log(error);
     res.send(error);
   }
 }
@@ -250,7 +245,13 @@ router.get("/delete-post/:id", isLoggedIn, async function(req,res,next){
   try{
     const deletepost = await post.findByIdAndDelete(req.params.id);
 
-    fs.unlinkSync(path.join(__dirname,"..","public","images", deletepost.media)
+    fs.unlinkSync(
+      path.join(
+        __dirname,
+        "..",
+        "public",
+        "images",
+         deletepost.media)
   );
   res.redirect("/timeline");
 
@@ -258,13 +259,6 @@ router.get("/delete-post/:id", isLoggedIn, async function(req,res,next){
     res.send(error);
   }
 });
-
-
-
-
-
-
-
 
 router.get("/logout-user/:id", isLoggedIn, function (req, res, next) {
   req.logout(() => {
@@ -280,11 +274,17 @@ router.post("/forget-email", async function (req, res, next) {
   try {
     const user = await User.findOne({ email: req.body.email });
     if (user) {
+
+       const url = `${req.protocol}://${req.get("host")}/forget-password/${
+         user._id
+       }`;
+
       // nodemail
 
-      sendmail(res, req.body.email, user);
+      // sendmail(res, req.body.email, user);
+      sendmail(req,user,url);
 
-      res.redirect(`forget-password`);
+      // res.redirect(`forget-password`);
     } else {
       res.redirect("forget-email");
     }
@@ -305,7 +305,7 @@ router.post("/forget-password/:id", async function (req, res, next) {
 
     // nodemail
 
-    if (user.resetpasswordToken === 1) {
+    if (user.resetPasswordToken === 1) {
       await user.setpassword(req.body.password);
       user.resetpasswordToken = 0;
 

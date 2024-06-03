@@ -81,6 +81,65 @@
 
 
 <script>
+   const inputimage = document.querySelector(".input-image");
+      const previewimage = document.querySelector(".preview-image")
+      const formimage = document.querySelector(".form-image")
+      previewimage.addEventListener("click", function () {
+        inputimage.click()
+      })
+
+      inputimage.addEventListener("change", function () {
+        formimage.submit()
+      })
+
+
+      
+
+      // const inputimage = document.querySelector(".input-image")
+//   const priview = document.querySelector(".preview-image")
+//   const formimage = document.querySelector(".form-image");
+  
+
+//   priview.addEventListener("click",()=>{
+//     inputimg.click()
+//   })
+
+//   inputimg.addEventListener("change",(event)=>{
+
+//     const inputFIle = event.target
+
+//     const previewImage = inputFIle.files[0]
+
+
+//     document.querySelector('.priview-image').src = URL.createObjectURL(previewImage)
+    
+//     formimage.submit()
+//   })
+
+
+
+// </script>
+ <%- include('partials/footer')%>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 
+
 //   const inputimage = document.querySelector(".input-image");
 //   const previewimage = document.querySelector(".preview-image")
 
@@ -91,36 +150,11 @@
 
 //   inputimage.addEventListener("change",function(){
 //     formimage.submit()
+ -->
+
+<!-- // }) -->
 
 
-// })
-
-
-  const inputimg = document.querySelector(".input-image")
-  const priview = document.querySelector(".priview-image")
-  const formimage = document.querySelector(".form-image");
-  
-
-  priview.addEventListener("click",()=>{
-    inputimg.click()
-  })
-
-  inputimg.addEventListener("change",(event)=>{
-
-    const inputFIle = event.target
-
-    const previewImage = inputFIle.files[0]
-
-
-    document.querySelector('.priview-image').src = URL.createObjectURL(previewImage)
-    
-    formimage.submit()
-  })
-
-
-
-</script>
- <%- include('partials/footer')%>
 
 
 
