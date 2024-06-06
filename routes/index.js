@@ -8,7 +8,7 @@ const path = require("path");
 
 // in index.js use strategy //
 
-const post = require("../models/postSchema");
+const Post = require("../models/postSchema");
 
 const User = require("../models/userSchema");
 
@@ -18,7 +18,7 @@ const LocalStrategy = require("passport-local");
 
 // nodemailer //
 const sendmail = require("../utils/mail");
-const { log } = require("console");
+// const { log } = require("console");
 
 passport.use(new LocalStrategy(User.authenticate()));
 
@@ -72,8 +72,8 @@ router.get("/about", function (req, res, next) {
 
 router.get("/profile", isLoggedIn, async function (req, res, next) {
   try {
-    const posts = await post.find().populate("User");
-    res.render("profile", { User: req.user, posts });
+    const posts = await Post.find().populate("User");
+    res.render("profile", { user: req.user, posts });
 } catch (error) {
     res.send(error);
 }
@@ -217,7 +217,7 @@ router.get("/post-create/", isLoggedIn, function(req,res,next){
 
 router.post("/post-create/", isLoggedIn, upload.single("media"), async function(req,res,next){
   try {
-    const newpost = new post ({
+    const newpost = new Post ({
       title: req.body.title, 
       media: req.file.filename,
       user:  req.user._id,
@@ -243,7 +243,7 @@ router.post("/post-create/", isLoggedIn, upload.single("media"), async function(
 
 router.get("/delete-post/:id", isLoggedIn, async function(req,res,next){
   try{
-    const deletepost = await post.findByIdAndDelete(req.params.id);
+    const deletepost = await Post.findByIdAndDelete(req.params.id);
 
     fs.unlinkSync(
       path.join(
